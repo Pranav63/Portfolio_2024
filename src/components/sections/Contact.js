@@ -56,6 +56,10 @@ const ContactMethod = ({ icon, text, href, color }) => (
 );
 
 const SuccessModal = ({ isOpen, onClose }) => {
+  const modalBg = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.800', 'white');
+  const headingColor = useColorModeValue('brand.600', 'brand.300');
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -65,13 +69,16 @@ const SuccessModal = ({ isOpen, onClose }) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         transition={{ duration: 0.3 }}
+        bg={modalBg}
+        borderRadius="xl"
+        boxShadow="xl"
       >
-        <ModalCloseButton />
+        <ModalCloseButton color={textColor} />
         <ModalBody textAlign="center" py={10}>
           <VStack spacing={4}>
             <Icon as={FaCheckCircle} w={16} h={16} color="green.500" />
-            <Heading size="lg">Message Sent Successfully!</Heading>
-            <Text>Thank you for reaching out. I'll get back to you soon.</Text>
+            <Heading size="lg" color={headingColor}>Message Sent Successfully!</Heading>
+            <Text color={textColor}>Thank you for reaching out. I'll get back to you soon.</Text>
           </VStack>
         </ModalBody>
       </ModalContent>
