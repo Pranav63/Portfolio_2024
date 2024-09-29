@@ -1,10 +1,8 @@
-// src/components/layout/MainLayout.js
-import React, { useEffect, useRef } from 'react';
-import { Box, VStack, Flex } from '@chakra-ui/react';
+import React, { useEffect } from 'react';
+import { Box, VStack } from '@chakra-ui/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import AnimatedBackground from '../AnimatedBackground';
-import ThemeToggle from '../ThemeToggle';
 import Navigation from '../Navigation';
 import Hero from '../sections/Hero';
 import About from '../sections/About';
@@ -49,9 +47,6 @@ const MainLayout = () => {
   return (
     <Box position="relative">
       <AnimatedBackground />
-      <Flex position="fixed" top={4} right={4} zIndex={10}>
-        <ThemeToggle />
-      </Flex>
       <Navigation />
       <Hero id="hero" />
       <VStack spacing={20} align="stretch">

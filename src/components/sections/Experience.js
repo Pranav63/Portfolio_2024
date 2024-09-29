@@ -1,32 +1,58 @@
-import React from 'react';
-import { Box, Heading, Text, Container, VStack, HStack, Image, Flex, List, ListItem, ListIcon } from '@chakra-ui/react';
-import { MdCheckCircle } from 'react-icons/md';
+import React, { useState } from 'react';
+import { Box, Heading, Text, Container, VStack, HStack, Image, Button, Flex, useColorModeValue, ScaleFade } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const ExperienceItem = ({ title, company, period, description, achievements, logo }) => (
-  <Box borderWidth="1px" borderRadius="lg" p={6} mb={6} boxShadow="md">
-    <HStack spacing={4} align="flex-start">
-      <Box flexShrink={0}>
-        <Image src={logo} alt={company} boxSize="50px" objectFit="contain" />
-      </Box>
-      <VStack align="start" spacing={2} w="100%">
-        <Heading as="h3" size="md">{title}</Heading>
-        <Text fontWeight="bold" color="brand.500">{company}</Text>
-        <Text fontSize="sm" color="gray.500">{period}</Text>
-        <Text>{description}</Text>
-        <List spacing={2}>
-          {achievements.map((achievement, index) => (
-            <ListItem key={index}>
-              <ListIcon as={MdCheckCircle} color="green.500" />
-              {achievement}
-            </ListItem>
-          ))}
-        </List>
-      </VStack>
-    </HStack>
-  </Box>
-);
+const MotionBox = motion(Box);
+
+const ExperienceCard = ({ experience, isActive, onClick }) => {
+  const cardBg = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(26, 32, 44, 0.8)');
+  const textColor = useColorModeValue('gray.800', 'white');
+
+  return (
+    <MotionBox
+      layout
+      onClick={onClick}
+      cursor="pointer"
+      bg={cardBg}
+      p={6}
+      borderRadius="lg"
+      boxShadow="lg"
+      backdropFilter="blur(10px)"
+      color={textColor}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <HStack spacing={4}>
+        <Image src={experience.logo} alt={experience.company} boxSize="50px" objectFit="contain" />
+        <VStack align="start" spacing={1}>
+          <Heading as="h3" size="md" color="brand.500">{experience.title}</Heading>
+          <Text fontWeight="bold">{experience.company}</Text>
+          <Text fontSize="sm">{experience.period}</Text>
+        </VStack>
+      </HStack>
+      <ScaleFade in={isActive} initialScale={0.9}>
+        {isActive && (
+          <Box mt={4}>
+            <Text mb={2}>{experience.description}</Text>
+            <VStack align="start" spacing={2}>
+              {experience.achievements.map((achievement, index) => (
+                <Text key={index} fontSize="sm">• {achievement}</Text>
+              ))}
+            </VStack>
+          </Box>
+        )}
+      </ScaleFade>
+    </MotionBox>
+  );
+};
 
 const Experience = () => {
+  const [activeExperience, setActiveExperience] = useState(null);
+  const headingColor = useColorModeValue('brand.600', 'brand.300');
+
   const experiences = [
     {
       title: "Senior Data Scientist",
@@ -73,15 +99,49 @@ const Experience = () => {
           <Heading 
             as="h2" 
             size="2xl" 
-            bgGradient="linear(to-r, brand.500, brand.300)" 
-            bgClip="text"
+            color={headingColor}
             textAlign="center"
+            mb={10}
           >
-            Professional Experience
+            Professional Journey
           </Heading>
-          {experiences.map((exp, index) => (
-            <ExperienceItem key={index} {...exp} />
-          ))}
+          <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align="stretch" gap={6}>
+            <VStack flex={1} spacing={6} align="stretch">
+              {experiences.map((exp, index) => (
+                <ExperienceCard
+                  key={index}
+                  experience={exp}
+                  isActive={activeExperience === index}
+                  onClick={() => setActiveExperience(activeExperience === index ? null : index)}
+                />
+              ))}
+            </VStack>
+            <Box flex={1} position="relative">
+              <AnimatePresence>
+                {activeExperience !== null && (
+                  <MotionBox
+                    key={activeExperience}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    position="sticky"
+                    top="100px"
+                  >
+                    <Image
+                      src={`/images/experience_${activeExperience + 1}.gif`}
+                      alt={experiences[activeExperience].company}
+                      borderRadius="lg"
+                      boxShadow="2xl"
+                    />
+                    <Text mt={4} fontSize="sm" fontStyle="italic" textAlign="center">
+                      {experiences[activeExperience].company} office or project visualization
+                    </Text>
+                  </MotionBox>
+                )}
+              </AnimatePresence>
+            </Box>
+          </Flex>
         </VStack>
       </Container>
     </Box>

@@ -1,9 +1,59 @@
-// src/components/sections/Contact.js
-import React, { useState } from 'react';
-import { Box, Heading, Text, Container, VStack, FormControl, FormLabel, Input, Textarea, Button, useToast } from '@chakra-ui/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { Box, Heading, Text, Container, VStack, FormControl, FormLabel, Input, Textarea, Button, useToast, Flex, Icon, useColorModeValue, ScaleFade } from '@chakra-ui/react';
+import { motion, useAnimation } from 'framer-motion';
+import { FaEnvelope, FaLinkedin, FaGithub, FaPaperPlane } from 'react-icons/fa';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Sphere, MeshDistortMaterial } from '@react-three/drei';
+import * as THREE from 'three';
 
 const MotionBox = motion(Box);
+
+const AnimatedSphere = () => {
+  const meshRef = useRef();
+  const clock = new THREE.Clock();
+
+  useFrame(() => {
+    if (meshRef.current) {
+      const elapsedTime = clock.getElapsedTime();
+      meshRef.current.rotation.x = elapsedTime * 0.5;
+      meshRef.current.rotation.y = elapsedTime * 0.3;
+    }
+  });
+
+  return (
+    <Sphere ref={meshRef} visible args={[1, 100, 200]} scale={2}>
+      <MeshDistortMaterial
+        color={useColorModeValue("#8855FF", "#BB99FF")}
+        attach="material"
+        distort={0.3}
+        speed={1.5}
+        roughness={0}
+      />
+    </Sphere>
+  );
+};
+
+const ContactMethod = ({ icon, text, href, color }) => (
+  <Button
+    as="a"
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    leftIcon={<Icon as={icon} boxSize={6} />}
+    variant="ghost"
+    size="lg"
+    justifyContent="flex-start"
+    fontWeight="medium"
+    color={useColorModeValue(`${color}.600`, `${color}.200`)}
+    _hover={{
+      bg: useColorModeValue(`${color}.50`, `${color}.900`),
+      transform: 'translateY(-2px)',
+    }}
+    transition="all 0.3s"
+  >
+    {text}
+  </Button>
+);
 
 const Contact = () => {
   const [name, setName] = useState('');
@@ -12,6 +62,33 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const toast = useToast();
+  const controls = useAnimation();
+
+  // Use transparent background to blend with the main layout
+  const bgColor = 'transparent';
+  const textColor = useColorModeValue('gray.200', 'gray.200');
+  const headingColor = useColorModeValue('brand.600', 'brand.300');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const inputColor = useColorModeValue('gray.800', 'white');
+  const inputBg = useColorModeValue('white', 'gray.700');
+  const inputBorder = useColorModeValue('gray.300', 'gray.600');
+  const inputPlaceholder = useColorModeValue('gray.400', 'gray.400');
+  const inputStyles = {
+    color: inputColor,
+    bg: inputBg,
+    borderColor: inputBorder,
+    _placeholder: { color: inputPlaceholder },
+    _hover: {
+      borderColor: useColorModeValue('gray.400', 'gray.500'),
+    },
+    _focus: {
+      borderColor: 'brand.500',
+      boxShadow: `0 0 0 1px ${useColorModeValue('brand.500', 'brand.400')}`,
+    },
+  };
+  useEffect(() => {
+    controls.start({ opacity: 1, y: 0 });
+  }, [controls]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,23 +97,17 @@ const Contact = () => {
     try {
       const response = await fetch('/api/sendEmail', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message }),
       });
 
-      const data = await response.json();
+      if (!response.ok) throw new Error('Failed to send message');
 
-      if (response.ok) {
-        setIsSuccess(true);
-        setName('');
-        setEmail('');
-        setMessage('');
-        setTimeout(() => setIsSuccess(false), 5000); // Hide success message after 5 seconds
-      } else {
-        throw new Error(data.message || 'Something went wrong');
-      }
+      setIsSuccess(true);
+      setName('');
+      setEmail('');
+      setMessage('');
+      setTimeout(() => setIsSuccess(false), 5000);
     } catch (error) {
       toast({
         title: "An error occurred.",
@@ -51,57 +122,97 @@ const Contact = () => {
   };
 
   return (
-    <Box id="contact" minHeight="100vh" display="flex" alignItems="center" py={20}>
-      <Container maxW="container.md">
-        <VStack spacing={8} align="stretch">
-          <Heading 
-            as="h2" 
-            size="2xl" 
-            bgGradient="linear(to-r, brand.500, brand.300)" 
-            bgClip="text"
-            textAlign="center"
+    <Box id="contact" minHeight="100vh" bg={bgColor} position="relative" overflow="hidden">
+      <Box position="absolute" top={0} left={0} width="100%" height="100%" opacity={0.1}>
+        <Canvas>
+          <AnimatedSphere />
+        </Canvas>
+      </Box>
+      <Container maxW="container.xl" py={20} position="relative">
+        <VStack spacing={12} align="stretch">
+          <MotionBox
+            initial={{ opacity: 0, y: -50 }}
+            animate={controls}
+            transition={{ duration: 0.5 }}
           >
-            Get In Touch
-          </Heading>
-          <Text fontSize="xl" textAlign="center">
-            Have a question or want to work together? Feel free to reach out!
-          </Text>
-          <AnimatePresence>
-            {isSuccess && (
-              <MotionBox
-                initial={{ opacity: 0, y: -50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -50 }}
-                mb={4}
-                p={4}
-                bg="green.100"
-                color="green.700"
-                borderRadius="md"
-                textAlign="center"
-              >
-                Your message has been sent successfully!
-              </MotionBox>
-            )}
-          </AnimatePresence>
-          <Box as="form" onSubmit={handleSubmit}>
-            <VStack spacing={4}>
-              <FormControl isRequired>
-                <FormLabel>Name</FormLabel>
-                <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your Name" />
-              </FormControl>
-              <FormControl isRequired>
-                <FormLabel>Email</FormLabel>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your Email" />
-              </FormControl>
-              <FormControl isRequired>
-                <FormLabel>Message</FormLabel>
-                <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Message" />
-              </FormControl>
-              <Button type="submit" colorScheme="brand" size="lg" width="full" isLoading={isSubmitting}>
-                Send Message
-              </Button>
+            <Heading
+              as="h2"
+              size="2xl"
+              color={headingColor}
+              textAlign="center"
+              fontWeight="bold"
+            >
+              Let's Create Something Extraordinary
+            </Heading>
+          </MotionBox>
+          <Flex direction={{ base: 'column', lg: 'row' }} spacing={10} align="center">
+            <VStack flex={1} spacing={6} align="stretch" pr={{ base: 0, lg: 10 }}>
+              <Text fontSize="xl" color={textColor} textAlign="center">
+                Ready to embark on a journey of innovation? Reach out through these channels:
+              </Text>
+              <ContactMethod icon={FaEnvelope} text="Shoot me an email" href="mailto:pranav2vis@gmail.com" color="blue" />
+              <ContactMethod icon={FaLinkedin} text="Connect on LinkedIn" href="https://www.linkedin.com/in/pranavarora63/" color="purple" />
+              <ContactMethod icon={FaGithub} text="Explore my GitHub" href="https://github.com/Pranav63" color="green" />
             </VStack>
-          </Box>
+            <MotionBox
+              flex={1}
+              bg={cardBg}
+              p={8}
+              borderRadius="2xl"
+              boxShadow="xl"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={controls}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+               <ScaleFade initialScale={0.9} in={true}>
+                <VStack as="form" onSubmit={handleSubmit} spacing={6}>
+                  <FormControl isRequired>
+                    <FormLabel color={textColor}>Name</FormLabel>
+                    <Input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your Name"
+                      {...inputStyles}
+                    />
+                  </FormControl>
+                  <FormControl isRequired>
+                    <FormLabel color={textColor}>Email</FormLabel>
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Your Email"
+                      {...inputStyles}
+                    />
+                  </FormControl>
+                  <FormControl isRequired>
+                    <FormLabel color={textColor}>Message</FormLabel>
+                    <Textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Your Message"
+                      minHeight="150px"
+                      {...inputStyles}
+                    />
+                  </FormControl>
+                  <Button
+                    type="submit"
+                    colorScheme="brand"
+                    size="lg"
+                    width="full"
+                    isLoading={isSubmitting}
+                    loadingText="Sending..."
+                    leftIcon={<FaPaperPlane />}
+                    _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                    transition="all 0.3s"
+                  >
+                    Send Message
+                  </Button>
+                </VStack>
+              </ScaleFade>
+            </MotionBox>
+          </Flex>
         </VStack>
       </Container>
     </Box>
