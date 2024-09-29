@@ -88,7 +88,7 @@ const Experience = () => {
         "Developed performance predictor, saving 20% cost on media planning and activation.",
         "Engineered data pipelines, saving $4k/month on third-party data ingestion costs."
       ],
-      logo: "/images/Denstu.png"
+      logo: "/images/denstu.jpg"
     },
   ];
 
@@ -135,7 +135,7 @@ const Experience = () => {
                       boxShadow="2xl"
                     />
                     <Text mt={4} fontSize="sm" fontStyle="italic" textAlign="center">
-                      {experiences[activeExperience].company} office or project visualization
+                      {experiences[activeExperience].company}
                     </Text>
                   </MotionBox>
                 )}
