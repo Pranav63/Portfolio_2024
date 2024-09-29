@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Heading, Text, Container, VStack, FormControl, FormLabel, Input, Textarea, Button, useToast, Flex, Icon, useColorModeValue, ScaleFade } from '@chakra-ui/react';
-import { motion, useAnimation } from 'framer-motion';
-import { FaEnvelope, FaLinkedin, FaGithub, FaPaperPlane } from 'react-icons/fa';
+import { Box, Heading, Text, Container, VStack, FormControl, FormLabel, Input, Textarea, Button, useToast, Flex, Icon, useColorModeValue, ScaleFade, Modal, ModalOverlay, ModalContent, ModalBody, ModalCloseButton } from '@chakra-ui/react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { FaEnvelope, FaLinkedin, FaGithub, FaPaperPlane, FaCheckCircle } from 'react-icons/fa';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sphere, MeshDistortMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -55,12 +55,36 @@ const ContactMethod = ({ icon, text, href, color }) => (
   </Button>
 );
 
+const SuccessModal = ({ isOpen, onClose }) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent
+        as={motion.div}
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <ModalCloseButton />
+        <ModalBody textAlign="center" py={10}>
+          <VStack spacing={4}>
+            <Icon as={FaCheckCircle} w={16} h={16} color="green.500" />
+            <Heading size="lg">Message Sent Successfully!</Heading>
+            <Text>Thank you for reaching out. I'll get back to you soon.</Text>
+          </VStack>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+};
+
 const Contact = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const toast = useToast();
   const controls = useAnimation();
 
@@ -103,11 +127,10 @@ const Contact = () => {
 
       if (!response.ok) throw new Error('Failed to send message');
 
-      setIsSuccess(true);
+      setIsModalOpen(true);
       setName('');
       setEmail('');
       setMessage('');
-      setTimeout(() => setIsSuccess(false), 5000);
     } catch (error) {
       toast({
         title: "An error occurred.",
@@ -215,6 +238,11 @@ const Contact = () => {
           </Flex>
         </VStack>
       </Container>
+      <AnimatePresence>
+        {isModalOpen && (
+          <SuccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        )}
+      </AnimatePresence>
     </Box>
   );
 };
