@@ -69,7 +69,7 @@ const MainLayout = () => {
       <AnimatedBackground />
       <Navigation />
       <Hero id="hero" />
-      <VStack spacing={20} align="stretch">
+      <VStack spacing={10} align="stretch">
         <About id="about" />
         <Skills id="skills" />
         <Experience id="experience" />
