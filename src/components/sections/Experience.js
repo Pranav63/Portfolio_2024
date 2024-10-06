@@ -7,7 +7,6 @@ const MotionBox = motion(Box);
 const ExperienceCard = ({ experience, isActive, onClick }) => {
   const cardBg = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(26, 32, 44, 0.8)');
   const textColor = useColorModeValue('gray.800', 'white');
-  const hoverBg = useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(26, 32, 44, 0.9)');
 
   return (
     <MotionBox
@@ -20,16 +19,11 @@ const ExperienceCard = ({ experience, isActive, onClick }) => {
       boxShadow="lg"
       backdropFilter="blur(10px)"
       color={textColor}
-      whileHover={{ 
-        scale: 1.05,
-        backgroundColor: hoverBg,
-        transition: { duration: 0.2 }
-      }}
+      whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      position="relative"
     >
       <HStack spacing={4}>
         <Image src={experience.logo} alt={experience.company} boxSize="50px" objectFit="contain" />
@@ -51,19 +45,9 @@ const ExperienceCard = ({ experience, isActive, onClick }) => {
           </Box>
         )}
       </ScaleFade>
-      <MotionBox
-        position="absolute"
-        bottom={2}
-        right={2}
-        animate={{ y: isActive ? 0 : [0, 5, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-      >
-        <FaChevronDown color={isActive ? 'transparent' : 'brand.500'} />
-      </MotionBox>
     </MotionBox>
   );
 };
-
 
 const Experience = () => {
   const [activeExperience, setActiveExperience] = useState(null);
@@ -121,9 +105,6 @@ const Experience = () => {
           >
             Professional Journey
           </Heading>
-          <Text fontSize="lg" textAlign="center" mb={6}>
-            Click on each card to explore my professional experiences in detail.
-          </Text>
           <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align="stretch" gap={6}>
             <VStack flex={1} spacing={6} align="stretch">
               {experiences.map((exp, index) => (
