@@ -1,79 +1,48 @@
-import React, { useEffect, useRef } from 'react';
-import { Box } from '@chakra-ui/react';
-import { useColorMode } from '@chakra-ui/react';
-import * as THREE from 'three';
+import React from 'react';
 
-const AnimatedBackground = () => {
-  const containerRef = useRef(null);
-  const { colorMode } = useColorMode();
-  const rendererRef = useRef(null);
+const orbs = [
+  { size: 600, x: '10%',  y: '15%',  color: 'rgba(0,212,255,0.07)',    duration: '18s', delay: '0s'  },
+  { size: 500, x: '75%',  y: '60%',  color: 'rgba(121,40,202,0.08)',   duration: '24s', delay: '-8s' },
+  { size: 350, x: '50%',  y: '80%',  color: 'rgba(0,212,255,0.05)',    duration: '20s', delay: '-4s' },
+  { size: 280, x: '85%',  y: '10%',  color: 'rgba(121,40,202,0.06)',   duration: '16s', delay: '-2s' },
+];
 
-  useEffect(() => {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
-    rendererRef.current = renderer;
-    
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    containerRef.current.appendChild(renderer.domElement);
-
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 5000;
-
-    const posArray = new Float32Array(particlesCount * 3);
-
-    for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 5;
-    }
-
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.005,
-      color: colorMode === 'dark' ? 0xffffff : 0x000000,
-    });
-
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particlesMesh);
-
-    camera.position.z = 2;
-
-    const animate = () => {
-      requestAnimationFrame(animate);
-      particlesMesh.rotation.y -= 0.001;
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (containerRef.current && rendererRef.current) {
-        containerRef.current.removeChild(rendererRef.current.domElement);
-      }
-      renderer.dispose();
-    };
-  }, [colorMode]);
-
-  return (
-    <Box
-      ref={containerRef}
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      zIndex={-1}
+const AnimatedBackground = () => (
+  <div
+    style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 0,
+      pointerEvents: 'none',
+      overflow: 'hidden',
+    }}
+    aria-hidden
+  >
+    {/* CSS grid overlay */}
+    <div
+      className="grid-bg"
+      style={{ position: 'absolute', inset: 0 }}
     />
-  );
-};
+
+    {/* Floating orbs */}
+    {orbs.map((orb, i) => (
+      <div
+        key={i}
+        style={{
+          position: 'absolute',
+          left: orb.x,
+          top: orb.y,
+          width: orb.size,
+          height: orb.size,
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
+          filter: 'blur(40px)',
+          transform: 'translate(-50%, -50%)',
+          animation: `float-orb ${orb.duration} ease-in-out ${orb.delay} infinite`,
+        }}
+      />
+    ))}
+  </div>
+);
 
 export default AnimatedBackground;

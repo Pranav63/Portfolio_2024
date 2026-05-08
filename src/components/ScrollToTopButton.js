@@ -1,60 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { IconButton, useColorModeValue } from '@chakra-ui/react';
-import { ArrowUpIcon } from '@chakra-ui/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ScrollToTopButton = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
+    const onScroll = () => setVisible(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  const buttonBg = useColorModeValue('brand.500', 'brand.200');
-  const buttonColor = useColorModeValue('white', 'gray.800');
 
   return (
     <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.2 }}
+      {visible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          whileHover={{ scale: 1.1, boxShadow: '0 0 20px rgba(0,212,255,0.4)' }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           style={{
             position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            zIndex: 1000
+            bottom: '28px',
+            right: '28px',
+            zIndex: 1000,
+            width: '44px',
+            height: '44px',
+            borderRadius: '50%',
+            background: '#00D4FF',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#050A14',
+            fontSize: '1.1rem',
+            fontWeight: 700,
           }}
         >
-          <IconButton
-            onClick={scrollToTop}
-            icon={<ArrowUpIcon />}
-            bg={buttonBg}
-            color={buttonColor}
-            size="lg"
-            isRound={true}
-            _hover={{ bg: useColorModeValue('brand.600', 'brand.300') }}
-            _active={{ bg: useColorModeValue('brand.700', 'brand.400') }}
-          />
-        </motion.div>
+          ↑
+        </motion.button>
       )}
     </AnimatePresence>
   );

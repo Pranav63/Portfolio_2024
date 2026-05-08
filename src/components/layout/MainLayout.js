@@ -1,8 +1,5 @@
-// src/components/layout/MainLayout.js
-import React, { useEffect } from 'react';
-import { Box, VStack, ChakraProvider } from '@chakra-ui/react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+import React, { useEffect, useState } from 'react';
+import { useColorMode } from '@chakra-ui/react';
 import AnimatedBackground from '../AnimatedBackground';
 import Navigation from '../Navigation';
 import Hero from '../sections/Hero';
@@ -13,71 +10,51 @@ import Projects from '../sections/Projects';
 import Contact from '../sections/Contact';
 import ScrollToTopButton from '../ScrollToTopButton';
 import SubtleLoader from '../SubtleLoader';
-import CustomCursor from '../CustomCursor';
-import PageTransition from '../PageTransition';
-import useSmoothScroll from '../../hooks/useSmoothScroll';
-import useDynamicTheme from '../../hooks/useDynamicTheme';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const MainLayout = () => {
-  const [isLoading, setIsLoading] = React.useState(true);
-  useSmoothScroll();
-  const { colorMode, accentColor } = useDynamicTheme();
+  const [isLoading, setIsLoading] = useState(true);
+  const { setColorMode } = useColorMode();
 
   useEffect(() => {
-    const sections = document.querySelectorAll('section');
+    // Force dark mode always
+    setColorMode('dark');
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, [setColorMode]);
 
-    sections.forEach((section, index) => {
-      gsap.fromTo(
-        section,
-        {
-          opacity: 0,
-          y: 30,
-          scale: 0.95,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom-=10%',
-            end: 'top center',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-    });
+  if (isLoading) return <SubtleLoader />;
 
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
-
-  if (isLoading) {
-    return <SubtleLoader />;
-  }
   return (
-    <Box position="relative">
+    <div style={{ position: 'relative', background: '#050A14', minHeight: '100vh' }}>
       <AnimatedBackground />
       <Navigation />
-      <Hero id="hero" />
-      <VStack spacing={5} align="stretch">
-        <About id="about" />
-        <Skills id="skills" />
-        <Experience id="experience" />
-        <Projects id="projects" />
-        <Contact id="contact" />
-      </VStack>
+      <main style={{ position: 'relative', zIndex: 1 }}>
+        <Hero />
+        <About />
+        <Skills />
+        <Experience />
+        <Projects />
+        <Contact />
+      </main>
       <ScrollToTopButton />
-    </Box>
+
+      {/* Footer */}
+      <footer
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          textAlign: 'center',
+          padding: '32px 24px',
+          borderTop: '1px solid rgba(255,255,255,0.04)',
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: '0.78rem',
+          color: 'rgba(226,232,240,0.25)',
+          letterSpacing: '0.05em',
+        }}
+      >
+        Designed &amp; Built by Pranav Arora · {new Date().getFullYear()}
+      </footer>
+    </div>
   );
 };
 

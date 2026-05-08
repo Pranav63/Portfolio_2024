@@ -1,13 +1,218 @@
-/* src/styles/globals.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #050A14;
+  --bg-2: #080E1A;
+  --cyan: #00D4FF;
+  --cyan-dim: rgba(0, 212, 255, 0.15);
+  --purple: #7928CA;
+  --purple-dim: rgba(121, 40, 202, 0.15);
+  --text: #E2E8F0;
+  --muted: #4A5568;
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.07);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 html,
 body {
-  padding: 0;
-  margin: 0;
+  background: var(--bg);
+  color: var(--text);
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
+/* ── Scrollbar ────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--cyan), var(--purple));
+  border-radius: 2px;
+}
+
+/* ── Glassmorphism utility ────────────────── */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+/* ── Glow utilities ───────────────────────── */
+.glow-text-cyan {
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+}
+.glow-box-cyan {
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.15), inset 0 0 24px rgba(0, 212, 255, 0.05);
+}
+.glow-box-purple {
+  box-shadow: 0 0 24px rgba(121, 40, 202, 0.2);
+}
+
+/* ── Section base ─────────────────────────── */
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 100px 0;
+}
+
+/* ── Section heading ──────────────────────── */
+.section-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* ── Grid background overlay ──────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── Skill badge ──────────────────────────── */
+.skill-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: default;
+  transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.skill-badge:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.15);
+}
+.skill-badge.accent:hover {
+  border-color: #9B59D8;
+  color: #9B59D8;
+  box-shadow: 0 0 16px rgba(121, 40, 202, 0.2);
+}
+
+/* ── Timeline line ────────────────────────── */
+.timeline-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--cyan), var(--purple), transparent);
+}
+
+/* ── 3-D card flip ────────────────────────── */
+.flip-wrapper {
+  perspective: 1200px;
+  height: 360px;
+}
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.flip-wrapper:hover .flip-inner {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+/* ── Terminal form ────────────────────────── */
+.terminal {
+  background: #0B1120;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  font-family: 'Space Mono', 'Fira Code', monospace;
+}
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+}
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.terminal-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cyan);
+  font-family: inherit;
+  font-size: 0.9rem;
+  width: 100%;
+  caret-color: var(--cyan);
+}
+.terminal-input::placeholder { color: var(--muted); }
+
+/* ── Animated cursor blink ────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  background: var(--cyan);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Floating orb animation ───────────────── */
+@keyframes float-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -40px) scale(1.05); }
+  66%       { transform: translate(-20px, 30px) scale(0.97); }
 }

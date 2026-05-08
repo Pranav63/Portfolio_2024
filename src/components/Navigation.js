@@ -1,102 +1,161 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Button, useBreakpointValue, HStack, useColorModeValue } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link as ScrollLink } from 'react-scroll';
-import ThemeToggle from './ThemeToggle';
+
+const NAV_ITEMS = ['About', 'Skills', 'Experience', 'Projects', 'Contact'];
 
 const Navigation = () => {
-  const [activeSection, setActiveSection] = useState('');
-  const isMobile = useBreakpointValue({ base: true, md: false });
-
-  const navItems = [
-    { name: 'About', color: 'pink.400' },
-    { name: 'Skills', color: 'purple.400' },
-    { name: 'Experience', color: 'blue.400' },
-    { name: 'Projects', color: 'green.400' },
-    { name: 'Contact', color: 'orange.400' }
-  ];
+  const [active, setActive] = useState('');
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = navItems.map(item => item.name.toLowerCase());
-      const currentSection = sections.find(section => {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
-        }
-        return false;
+    const onScroll = () => {
+      setScrolled(window.scrollY > 60);
+      const ids = NAV_ITEMS.map((n) => n.toLowerCase());
+      const current = ids.find((id) => {
+        const el = document.getElementById(id);
+        if (!el) return false;
+        const { top, bottom } = el.getBoundingClientRect();
+        return top <= 120 && bottom >= 120;
       });
-      setActiveSection(currentSection || '');
+      setActive(current || '');
     };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
-    <Box 
-      position="fixed" 
-      top={0} 
-      left={0} 
-      right={0} 
-      zIndex={10} 
-      bg="rgba(0,0,0,0.7)" 
-      backdropFilter="blur(5px)"
-      boxShadow="0 2px 10px rgba(0,0,0,0.1)"
+    <motion.nav
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        position: 'fixed',
+        top: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '8px 12px',
+        background: scrolled ? 'rgba(5,10,20,0.85)' : 'rgba(5,10,20,0.5)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(0,212,255,0.1)',
+        borderRadius: '100px',
+        boxShadow: scrolled ? '0 8px 32px rgba(0,0,0,0.4)' : 'none',
+        transition: 'background 0.3s, box-shadow 0.3s',
+      }}
     >
-      <Flex 
-        maxW="container.xl" 
-        mx="auto" 
-        px={4} 
-        py={4} 
-        align="center" 
-        justify="space-between"
-        flexDir={isMobile ? "column" : "row"}
+      {/* Logo mark */}
+      <a
+        href="#hero"
+        style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontWeight: 700,
+          fontSize: '0.85rem',
+          color: '#00D4FF',
+          textDecoration: 'none',
+          letterSpacing: '0.05em',
+          padding: '4px 10px',
+          marginRight: '6px',
+        }}
       >
-        <Flex flexWrap="wrap" justify={isMobile ? "center" : "flex-start"} mb={isMobile ? 4 : 0}>
-          {navItems.map((item) => (
-            <ScrollLink
-              key={item.name}
-              to={item.name.toLowerCase()}
-              smooth={true}
-              duration={500}
-              offset={-70}
-            >
-              <Button
-                variant="ghost"
-                color={activeSection === item.name.toLowerCase() ? item.color : "white"}
-                mx={1}
-                my={1}
-                size={isMobile ? "sm" : "md"}
-                _hover={{ 
-                  bg: useColorModeValue(`${item.color}Alpha.200`, `${item.color}Alpha.300`),
-                  transform: 'translateY(-2px)'
-                }}
-                _active={{ bg: useColorModeValue(`${item.color}Alpha.300`, `${item.color}Alpha.400`) }}
-                transition="all 0.2s"
-                fontWeight={activeSection === item.name.toLowerCase() ? "bold" : "normal"}
-                borderBottom={activeSection === item.name.toLowerCase() ? `2px solid ${item.color}` : "none"}
-              >
-                {item.name}
-              </Button>
-            </ScrollLink>
-          ))}
-        </Flex>
-        <HStack spacing={2}>
-          <Button
-            as="a"
-            href="https://drive.google.com/file/d/13eRwg012J-Q5AsMRfyBbHBOHw8MardYu/view?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            colorScheme="brand"
-            size={isMobile ? "sm" : "md"}
+        PA
+      </a>
+
+      <div
+        style={{
+          width: '1px',
+          height: '18px',
+          background: 'rgba(255,255,255,0.1)',
+          marginRight: '4px',
+        }}
+      />
+
+      {NAV_ITEMS.map((item) => {
+        const isActive = active === item.toLowerCase();
+        return (
+          <ScrollLink
+            key={item}
+            to={item.toLowerCase()}
+            smooth
+            duration={600}
+            offset={-80}
+            style={{ cursor: 'pointer' }}
           >
-            Resume
-          </Button>
-          <ThemeToggle />
-        </HStack>
-      </Flex>
-    </Box>
+            <motion.div
+              whileHover={{ color: '#00D4FF' }}
+              style={{
+                position: 'relative',
+                padding: '6px 14px',
+                borderRadius: '100px',
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '0.82rem',
+                fontWeight: isActive ? 600 : 400,
+                color: isActive ? '#050A14' : 'rgba(226,232,240,0.7)',
+                cursor: 'pointer',
+                userSelect: 'none',
+                transition: 'color 0.2s',
+              }}
+            >
+              <AnimatePresence>
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: '#00D4FF',
+                      borderRadius: '100px',
+                      zIndex: -1,
+                    }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </AnimatePresence>
+              {item}
+            </motion.div>
+          </ScrollLink>
+        );
+      })}
+
+      <div
+        style={{
+          width: '1px',
+          height: '18px',
+          background: 'rgba(255,255,255,0.1)',
+          marginLeft: '4px',
+        }}
+      />
+
+      <motion.a
+        href="https://drive.google.com/file/d/13eRwg012J-Q5AsMRfyBbHBOHw8MardYu/view?usp=sharing"
+        target="_blank"
+        rel="noopener noreferrer"
+        whileHover={{ scale: 1.05, boxShadow: '0 0 16px rgba(0,212,255,0.3)' }}
+        whileTap={{ scale: 0.96 }}
+        style={{
+          padding: '6px 16px',
+          background: 'transparent',
+          color: '#00D4FF',
+          border: '1px solid rgba(0,212,255,0.4)',
+          borderRadius: '100px',
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: '0.82rem',
+          fontWeight: 600,
+          textDecoration: 'none',
+          marginLeft: '4px',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Resume
+      </motion.a>
+    </motion.nav>
   );
 };
 

@@ -1,31 +1,35 @@
-// src/styles/theme.js
 import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
   fonts: {
-    heading: 'Inter, sans-serif',
-    body: 'Inter, sans-serif',
+    heading: "'Space Grotesk', sans-serif",
+    body: "'Inter', sans-serif",
   },
   colors: {
     brand: {
-      100: '#E9D8FD',
-      200: '#D6BCFA',
-      300: '#B794F4',
-      400: '#9F7AEA',
-      500: '#8352FD',
-      600: '#6B46C1',
-      700: '#553C9A',
-      800: '#44337A',
-      900: '#322659',
+      50:  '#E0FEFF',
+      100: '#B3FCFF',
+      200: '#80F8FF',
+      300: '#4DF4FF',
+      400: '#26F0FF',
+      500: '#00D4FF',
+      600: '#00A8CC',
+      700: '#007D99',
+      800: '#005166',
+      900: '#002633',
     },
   },
   styles: {
     global: {
       body: {
-        bg: '#0F0F0F',
-        color: 'white',
+        bg: '#050A14',
+        color: '#E2E8F0',
       },
     },
+  },
+  config: {
+    initialColorMode: 'dark',
+    useSystemColorMode: false,
   },
 });
 

@@ -1,198 +1,271 @@
-import React, { useEffect, useRef } from 'react';
-import { Box, Heading, Text, Container, Flex, Image, VStack, HStack, Icon, Divider, useColorModeValue } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-import { FaLaptopCode, FaChartLine, FaRobot, FaCamera, FaFilm, FaChessKnight } from 'react-icons/fa';
-import { MdSchool, MdWorkspaces, MdCastForEducation } from 'react-icons/md';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { FaCamera, FaFilm, FaChessKnight, FaGraduationCap } from 'react-icons/fa';
 
-gsap.registerPlugin(ScrollTrigger);
+// ── Animated counter ─────────────────────────────────────────────────────────
+const Counter = ({ end, suffix = '', duration = 2000 }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
 
-const HighlightBox = ({ icon, text }) => (
-  <HStack 
-    bg="whiteAlpha.200" 
-    p={3} 
-    borderRadius="md" 
-    boxShadow="md" 
-    _hover={{ bg: "whiteAlpha.300", transform: "translateY(-5px)" }}
-    transition="all 0.3s"
-  >
-    <Icon as={icon} boxSize={6} color="brand.500" />
-    <Text fontWeight="medium">{text}</Text>
-  </HStack>
-);
-
-const EducationItem = ({ icon, degree, institution, year }) => (
-  <HStack spacing={4} align="flex-start">
-    <Icon as={icon} boxSize={6} color="brand.500" />
-    <VStack align="start" spacing={0}>
-      <Text fontWeight="bold">{degree}</Text>
-      <Text>{institution}</Text>
-      <Text fontSize="sm" color="gray.500">{year}</Text>
-    </VStack>
-  </HStack>
-);
-const NetworkVisualization = () => {
-  const nodes = [...Array(10)].map((_, i) => ({
-    id: i,
-    x: Math.random() * 280 + 10,
-    y: Math.random() * 280 + 10,
-  }));
-
-  const edges = [...Array(15)].map(() => {
-    const source = Math.floor(Math.random() * nodes.length);
-    let target = Math.floor(Math.random() * nodes.length);
-    while (target === source) {
-      target = Math.floor(Math.random() * nodes.length);
-    }
-    return { source, target };
-  });
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const step = end / (duration / 16);
+    const timer = setInterval(() => {
+      start = Math.min(start + step, end);
+      setCount(Math.floor(start));
+      if (start >= end) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, end, duration]);
 
   return (
-    <svg width="100%" height="100%" viewBox="0 0 300 300">
-      <defs>
-        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#00FFFF" />
-          <stop offset="100%" stopColor="#FF00FF" />
-        </linearGradient>
-      </defs>
-      {edges.map((edge, i) => (
-        <motion.line
-          key={`edge-${i}`}
-          x1={nodes[edge.source].x}
-          y1={nodes[edge.source].y}
-          x2={nodes[edge.target].x}
-          y2={nodes[edge.target].y}
-          stroke="url(#gradient)"
-          strokeWidth="1"
-          strokeOpacity="0.6"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-        />
-      ))}
-      {nodes.map((node, i) => (
-        <motion.circle
-          key={`node-${i}`}
-          cx={node.x}
-          cy={node.y}
-          r="4"
-          fill="#FFFFFF"
-          initial={{ scale: 0 }}
-          animate={{ scale: [0, 1, 0.5, 1] }}
-          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-        />
-      ))}
-    </svg>
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
   );
 };
 
+// ── Stat card ────────────────────────────────────────────────────────────────
+const Stat = ({ value, suffix, label }) => (
+  <motion.div
+    whileHover={{ scale: 1.04 }}
+    className="glass-card"
+    style={{ padding: '20px 24px', textAlign: 'center', flex: '1 1 120px' }}
+  >
+    <div
+      style={{
+        fontFamily: "'Space Grotesk', sans-serif",
+        fontSize: '2rem',
+        fontWeight: 700,
+        color: '#00D4FF',
+        lineHeight: 1,
+        marginBottom: '6px',
+      }}
+    >
+      <Counter end={value} suffix={suffix} />
+    </div>
+    <div style={{ fontSize: '0.75rem', color: 'rgba(226,232,240,0.5)', letterSpacing: '0.05em' }}>
+      {label}
+    </div>
+  </motion.div>
+);
+
+// ── Education item ────────────────────────────────────────────────────────────
+const EduItem = ({ degree, institution, year }) => (
+  <div
+    style={{
+      display: 'flex',
+      gap: '14px',
+      alignItems: 'flex-start',
+      padding: '14px 0',
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+    }}
+  >
+    <FaGraduationCap style={{ color: '#00D4FF', marginTop: '3px', flexShrink: 0, fontSize: '1rem' }} />
+    <div>
+      <div
+        style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontWeight: 600,
+          fontSize: '0.9rem',
+          color: '#E2E8F0',
+          marginBottom: '2px',
+        }}
+      >
+        {degree}
+      </div>
+      <div style={{ fontSize: '0.8rem', color: 'rgba(226,232,240,0.5)' }}>
+        {institution} · {year}
+      </div>
+    </div>
+  </div>
+);
+
+const HOBBIES = [
+  { icon: FaCamera, label: 'Photography' },
+  { icon: FaFilm,   label: 'Marvel Films' },
+  { icon: FaChessKnight, label: 'Quizzing' },
+];
+
+const EDUCATION = [
+  {
+    degree: 'MSc in Artificial Intelligence',
+    institution: 'Singapore Management University',
+    year: '2018–2020',
+  },
+  {
+    degree: 'BSc in Computer Science',
+    institution: 'UPES, Dehradun',
+    year: '2014–2018',
+  },
+  {
+    degree: 'Business Analytics (Online)',
+    institution: 'Harvard Business School',
+    year: '2020',
+  },
+];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 32 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
 const About = () => {
-  const sectionRef = useRef(null);
-  const contentRef = useRef(null);
-
-  useEffect(() => {
-    const content = contentRef.current;
-
-    gsap.fromTo(
-      content,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top center+=100',
-          end: 'center center',
-          scrub: true,
-        },
-      }
-    );
-  }, []);
-
-  const headerColor = useColorModeValue('gray.800', 'white');
-  const subHeaderColor = useColorModeValue('gray.600', 'gray.300');
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <Box ref={sectionRef} minHeight="100vh" display="flex" alignItems="center" py={20} id="about">
-      <Container maxW="container.xl">
-        <Flex direction={{ base: 'column', md: 'row' }} align="center" justify="space-between">
-          <Box 
-            flex={1} 
-            mr={{ base: 0, md: 10 }} 
-            mb={{ base: 10, md: 0 }} 
-            width={{ base: "300px", md: "300px" }}
-            height={{ base: "300px", md: "300px" }}
-            bg="rgba(255, 255, 255, 0.05)"
-            borderRadius="xl"
-            overflow="hidden"
-            boxShadow="xl"
+    <section id="about" className="section" ref={ref} style={{ padding: '120px 0' }}>
+      <div
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 24px',
+          width: '100%',
+        }}
+      >
+        {/* Section label */}
+        <motion.p
+          className="section-label"
+          variants={fadeUp}
+          initial="hidden"
+          animate={inView ? 'visible' : 'hidden'}
+          custom={0}
+        >
+          Who I am
+        </motion.p>
+        <motion.h2
+          className="section-title"
+          variants={fadeUp}
+          initial="hidden"
+          animate={inView ? 'visible' : 'hidden'}
+          custom={1}
+          style={{ marginBottom: '60px' }}
+        >
+          About Me
+        </motion.h2>
+
+        {/* Main grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '40px',
+            alignItems: 'start',
+          }}
+        >
+          {/* Left — bio + photo */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
+            custom={2}
           >
-            <NetworkVisualization />
-          </Box>
-          <VStack flex={1} align="start" spacing={6} ref={contentRef}>
-            <HStack spacing={4} align="center">
-              <Image
-                src="/images/pranav_pho.png"
-                alt="Pranav Arora"
-                borderRadius="full"
-                boxSize="50px"
-                objectFit="cover"
-                border="2px solid"
-                borderColor="brand.500"
-              />
-              <Heading as="h2" size="2xl" bgGradient="linear(to-r, brand.500, brand.300)" bgClip="text">
-                About Me
-              </Heading>
-            </HStack>
-            <Text fontSize="lg" fontWeight="medium">
-              Passionate Data Scientist and AI Enthusiast based in Singapore, with over 5 years of experience in turning complex data into actionable insights.
-            </Text>
-            <VStack align="start" spacing={4} width="100%">
-              <Heading as="h3" size="md" color="brand.400">Key Skills</Heading>
-              <Flex wrap="wrap" gap={4}>
-                <HighlightBox icon={FaLaptopCode} text="Machine Learning" />
-                <HighlightBox icon={FaChartLine} text="Data Analytics" />
-                <HighlightBox icon={FaRobot} text="Artificial Intelligence" />
-              </Flex>
-            </VStack>
-            <VStack align="start" spacing={4} width="100%">
-              <Heading as="h3" size="md" color="brand.400">When I'm not coding</Heading>
-              <Flex wrap="wrap" gap={4}>
-                <HighlightBox icon={FaCamera} text="Photography" />
-                <HighlightBox icon={FaFilm} text="Marvel Movies" />
-                <HighlightBox icon={FaChessKnight} text="Quizzing" />
-              </Flex>
-            </VStack>
-            <Divider my={4} />
-            <VStack align="start" spacing={4} width="100%">
-              <Heading as="h3" size="md" color="brand.400">Education</Heading>
-              <VStack align="start" spacing={4}>
-                <EducationItem 
-                  icon={MdSchool}
-                  degree="Masters in Artificial Intelligence"
-                  institution="Singapore Management University"
-                  year="2018-2020"
+            <div
+              className="glass-card"
+              style={{ padding: '32px', marginBottom: '24px' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                <img
+                  src="/images/pranav_pho.png"
+                  alt="Pranav Arora"
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '2px solid #00D4FF',
+                    boxShadow: '0 0 20px rgba(0,212,255,0.3)',
+                  }}
                 />
-                <EducationItem 
-                  icon={MdWorkspaces}
-                  degree="Bachelors in Computer Science"
-                  institution="University of Petroleum and Energy Studies"
-                  year="2014-2018"
-                />
-                <EducationItem 
-                  icon={MdCastForEducation}
-                  degree="HBX Online spl. Business Analytics"
-                  institution="Harvard Business School"
-                  year="2020"
-                />
-              </VStack>
-            </VStack>
-          </VStack>
-        </Flex>
-      </Container>
-    </Box>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontWeight: 700,
+                      fontSize: '1.1rem',
+                      color: '#fff',
+                    }}
+                  >
+                    Pranav Arora
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#00D4FF' }}>
+                    Senior ML Engineer · Singapore
+                  </div>
+                </div>
+              </div>
+              <p style={{ lineHeight: 1.75, color: 'rgba(226,232,240,0.75)', fontSize: '0.95rem' }}>
+                Passionate ML &amp; AI engineer with 5+ years building and deploying production ML systems
+                across semiconductor manufacturing, digital marketing, and enterprise AI. I specialize in
+                turning complex data pipelines into scalable, real-world solutions — from reinforcement
+                learning fab agents to in-house LLM chatbots.
+              </p>
+            </div>
+
+            {/* Hobbies */}
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {HOBBIES.map(({ icon: Icon, label }) => (
+                <div key={label} className="skill-badge">
+                  <Icon style={{ color: '#00D4FF', fontSize: '0.85rem' }} />
+                  {label}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Right — stats + education */}
+          <div>
+            {/* Stats row */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate={inView ? 'visible' : 'hidden'}
+              custom={3}
+              style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '28px' }}
+            >
+              <Stat value={5}  suffix="+"  label="Years Experience" />
+              <Stat value={85} suffix="%"  label="Model Accuracy" />
+              <Stat value={30} suffix="%"  label="Downtime Reduced" />
+              <Stat value={50} suffix="%"  label="Queue Time Cut" />
+            </motion.div>
+
+            {/* Education */}
+            <motion.div
+              className="glass-card"
+              variants={fadeUp}
+              initial="hidden"
+              animate={inView ? 'visible' : 'hidden'}
+              custom={4}
+              style={{ padding: '28px 32px' }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  color: '#00D4FF',
+                  marginBottom: '16px',
+                }}
+              >
+                Education
+              </div>
+              {EDUCATION.map((edu) => (
+                <EduItem key={edu.degree} {...edu} />
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 

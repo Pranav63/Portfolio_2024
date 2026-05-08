@@ -1,256 +1,275 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Box, Heading, Text, Container, VStack, FormControl, FormLabel, Input, Textarea, Button, useToast, Flex, Icon, useColorModeValue, ScaleFade, Modal, ModalOverlay, ModalContent, ModalBody, ModalCloseButton } from '@chakra-ui/react';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
-import { FaEnvelope, FaLinkedin, FaGithub, FaPaperPlane, FaCheckCircle } from 'react-icons/fa';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, MeshDistortMaterial } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useState, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
+import { useToast } from '@chakra-ui/react';
 
-const MotionBox = motion(Box);
+const SOCIAL = [
+  {
+    icon: FaEnvelope,
+    label: 'pranav2vis@gmail.com',
+    href: 'mailto:pranav2vis@gmail.com',
+  },
+  {
+    icon: FaLinkedin,
+    label: 'linkedin.com/in/pranavarora63',
+    href: 'https://www.linkedin.com/in/pranavarora63/',
+  },
+  {
+    icon: FaGithub,
+    label: 'github.com/Pranav63',
+    href: 'https://github.com/Pranav63',
+  },
+];
 
-const AnimatedSphere = () => {
-  const meshRef = useRef();
-  const clock = new THREE.Clock();
-
-  useFrame(() => {
-    if (meshRef.current) {
-      const elapsedTime = clock.getElapsedTime();
-      meshRef.current.rotation.x = elapsedTime * 0.5;
-      meshRef.current.rotation.y = elapsedTime * 0.3;
-    }
-  });
-
-  return (
-    <Sphere ref={meshRef} visible args={[1, 100, 200]} scale={2}>
-      <MeshDistortMaterial
-        color={useColorModeValue("#8855FF", "#BB99FF")}
-        attach="material"
-        distort={0.3}
-        speed={1.5}
-        roughness={0}
-      />
-    </Sphere>
-  );
+const fadeUp = {
+  hidden: { opacity: 0, y: 32 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.65, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
+  }),
 };
 
-const ContactMethod = ({ icon, text, href, color }) => (
-  <Button
-    as="a"
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    leftIcon={<Icon as={icon} boxSize={6} />}
-    variant="ghost"
-    size="lg"
-    justifyContent="flex-start"
-    fontWeight="medium"
-    color={useColorModeValue(`${color}.600`, `${color}.200`)}
-    _hover={{
-      bg: useColorModeValue(`${color}.50`, `${color}.900`),
-      transform: 'translateY(-2px)',
-    }}
-    transition="all 0.3s"
-  >
-    {text}
-  </Button>
-);
+const LINE_STYLE = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  padding: '10px 18px',
+  borderBottom: '1px solid rgba(0,212,255,0.07)',
+};
 
-const SuccessModal = ({ isOpen, onClose }) => {
-  const modalBg = useColorModeValue('white', 'gray.800');
-  const textColor = useColorModeValue('gray.800', 'white');
-  const headingColor = useColorModeValue('brand.600', 'brand.300');
+const LABEL_STYLE = {
+  color: 'rgba(226,232,240,0.35)',
+  fontSize: '0.85rem',
+  fontFamily: "'Space Mono', 'Courier New', monospace",
+  minWidth: '80px',
+  userSelect: 'none',
+};
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent
-        as={motion.div}
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.8, opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        bg={modalBg}
-        borderRadius="xl"
-        boxShadow="xl"
-      >
-        <ModalCloseButton color={textColor} />
-        <ModalBody textAlign="center" py={10}>
-          <VStack spacing={4}>
-            <Icon as={FaCheckCircle} w={16} h={16} color="green.500" />
-            <Heading size="lg" color={headingColor}>Message Sent Successfully!</Heading>
-            <Text color={textColor}>Thank you for reaching out. I'll get back to you soon.</Text>
-          </VStack>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
-  );
+const INPUT_STYLE = {
+  background: 'transparent',
+  border: 'none',
+  outline: 'none',
+  color: '#00D4FF',
+  fontFamily: "'Space Mono', 'Courier New', monospace",
+  fontSize: '0.9rem',
+  width: '100%',
+  caretColor: '#00D4FF',
 };
 
 const Contact = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
   const toast = useToast();
-  const controls = useAnimation();
 
-  // Use transparent background to blend with the main layout
-  const bgColor = 'transparent';
-  const textColor = useColorModeValue('gray.200', 'gray.200');
-  const headingColor = useColorModeValue('brand.600', 'brand.300');
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const inputColor = useColorModeValue('gray.800', 'white');
-  const inputBg = useColorModeValue('white', 'gray.700');
-  const inputBorder = useColorModeValue('gray.300', 'gray.600');
-  const inputPlaceholder = useColorModeValue('gray.400', 'gray.400');
-  const inputStyles = {
-    color: inputColor,
-    bg: inputBg,
-    borderColor: inputBorder,
-    _placeholder: { color: inputPlaceholder },
-    _hover: {
-      borderColor: useColorModeValue('gray.400', 'gray.500'),
-    },
-    _focus: {
-      borderColor: 'brand.500',
-      boxShadow: `0 0 0 1px ${useColorModeValue('brand.500', 'brand.400')}`,
-    },
-  };
-  useEffect(() => {
-    controls.start({ opacity: 1, y: 0 });
-  }, [controls]);
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [sending, setSending] = useState(false);
+
+  const set = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
+    setSending(true);
     try {
-      const response = await fetch('/api/sendEmail', {
+      const res = await fetch('/api/sendEmail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify(form),
       });
-
-      if (!response.ok) throw new Error('Failed to send message');
-
-      setIsModalOpen(true);
-      setName('');
-      setEmail('');
-      setMessage('');
-    } catch (error) {
+      if (!res.ok) throw new Error('Send failed');
       toast({
-        title: "An error occurred.",
-        description: error.message,
-        status: "error",
+        title: 'Message sent.',
+        description: "I'll get back to you soon.",
+        status: 'success',
         duration: 5000,
         isClosable: true,
+        position: 'bottom-right',
+      });
+      setForm({ name: '', email: '', message: '' });
+    } catch {
+      toast({
+        title: 'Failed to send.',
+        description: 'Please try again or email directly.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'bottom-right',
       });
     } finally {
-      setIsSubmitting(false);
+      setSending(false);
     }
   };
 
   return (
-    <Box id="contact" minHeight="100vh" bg={bgColor} position="relative" overflow="hidden">
-      <Box position="absolute" top={0} left={0} width="100%" height="100%" opacity={0.1}>
-        <Canvas>
-          <AnimatedSphere />
-        </Canvas>
-      </Box>
-      <Container maxW="container.xl" py={20} position="relative">
-        <VStack spacing={12} align="stretch">
-          <MotionBox
-            initial={{ opacity: 0, y: -50 }}
-            animate={controls}
-            transition={{ duration: 0.5 }}
+    <section id="contact" className="section" ref={ref} style={{ padding: '120px 0' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', width: '100%' }}>
+        <motion.p
+          className="section-label"
+          variants={fadeUp} initial="hidden" animate={inView ? 'visible' : 'hidden'} custom={0}
+        >
+          Get in touch
+        </motion.p>
+        <motion.h2
+          className="section-title"
+          variants={fadeUp} initial="hidden" animate={inView ? 'visible' : 'hidden'} custom={1}
+          style={{ marginBottom: '16px' }}
+        >
+          Let's Build Something
+        </motion.h2>
+        <motion.p
+          variants={fadeUp}
+          initial="hidden"
+          animate={inView ? 'visible' : 'hidden'}
+          custom={2}
+          style={{
+            fontSize: '1rem',
+            color: 'rgba(226,232,240,0.55)',
+            marginBottom: '56px',
+            maxWidth: '480px',
+          }}
+        >
+          Open to collaborations, full-time opportunities, and interesting AI projects.
+        </motion.p>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '40px',
+            alignItems: 'start',
+          }}
+        >
+          {/* Left — social links */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
+            custom={3}
+            style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
           >
-            <Heading
-              as="h2"
-              size="2xl"
-              color={headingColor}
-              textAlign="center"
-              fontWeight="bold"
-            >
-              Let's Create Something Extraordinary
-            </Heading>
-          </MotionBox>
-          <Flex direction={{ base: 'column', lg: 'row' }} spacing={10} align="center">
-            <VStack flex={1} spacing={6} align="stretch" pr={{ base: 0, lg: 10 }}>
-              <Text fontSize="xl" color={textColor} textAlign="center">
-                Ready to embark on a journey of innovation? Reach out through these channels:
-              </Text>
-              <ContactMethod icon={FaEnvelope} text="Shoot me an email" href="mailto:pranav2vis@gmail.com" color="blue" />
-              <ContactMethod icon={FaLinkedin} text="Connect on LinkedIn" href="https://www.linkedin.com/in/pranavarora63/" color="purple" />
-              <ContactMethod icon={FaGithub} text="Explore my GitHub" href="https://github.com/Pranav63" color="green" />
-            </VStack>
-            <MotionBox
-              flex={1}
-              bg={cardBg}
-              p={8}
-              borderRadius="2xl"
-              boxShadow="xl"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={controls}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-               <ScaleFade initialScale={0.9} in={true}>
-                <VStack as="form" onSubmit={handleSubmit} spacing={6}>
-                  <FormControl isRequired>
-                    <FormLabel color={textColor}>Name</FormLabel>
-                    <Input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your Name"
-                      {...inputStyles}
-                    />
-                  </FormControl>
-                  <FormControl isRequired>
-                    <FormLabel color={textColor}>Email</FormLabel>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Your Email"
-                      {...inputStyles}
-                    />
-                  </FormControl>
-                  <FormControl isRequired>
-                    <FormLabel color={textColor}>Message</FormLabel>
-                    <Textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Your Message"
-                      minHeight="150px"
-                      {...inputStyles}
-                    />
-                  </FormControl>
-                  <Button
-                    type="submit"
-                    colorScheme="brand"
-                    size="lg"
-                    width="full"
-                    isLoading={isSubmitting}
-                    loadingText="Sending..."
-                    leftIcon={<FaPaperPlane />}
-                    _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
-                    transition="all 0.3s"
-                  >
-                    Send Message
-                  </Button>
-                </VStack>
-              </ScaleFade>
-            </MotionBox>
-          </Flex>
-        </VStack>
-      </Container>
-      <AnimatePresence>
-        {isModalOpen && (
-          <SuccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-        )}
-      </AnimatePresence>
-    </Box>
+            {SOCIAL.map(({ icon: Icon, label, href }) => (
+              <motion.a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glass-card"
+                whileHover={{
+                  borderColor: 'rgba(0,212,255,0.3)',
+                  x: 4,
+                  boxShadow: '0 0 24px rgba(0,212,255,0.1)',
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  padding: '18px 22px',
+                  textDecoration: 'none',
+                  transition: 'border-color 0.25s, box-shadow 0.25s',
+                }}
+              >
+                <Icon style={{ color: '#00D4FF', fontSize: '1.1rem', flexShrink: 0 }} />
+                <span
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: '0.88rem',
+                    color: 'rgba(226,232,240,0.75)',
+                  }}
+                >
+                  {label}
+                </span>
+              </motion.a>
+            ))}
+          </motion.div>
+
+          {/* Right — terminal form */}
+          <motion.form
+            onSubmit={handleSubmit}
+            variants={fadeUp}
+            initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
+            custom={4}
+            className="terminal"
+          >
+            {/* Terminal title bar */}
+            <div className="terminal-bar">
+              <div className="terminal-dot" style={{ background: '#FF5F56' }} />
+              <div className="terminal-dot" style={{ background: '#FFBD2E' }} />
+              <div className="terminal-dot" style={{ background: '#27C93F' }} />
+              <span
+                style={{
+                  marginLeft: '8px',
+                  fontSize: '0.75rem',
+                  color: 'rgba(226,232,240,0.35)',
+                  fontFamily: "'Space Mono', monospace",
+                }}
+              >
+                contact.sh
+              </span>
+            </div>
+
+            {/* Prompt lines */}
+            <div style={LINE_STYLE}>
+              <span style={LABEL_STYLE}>$ name</span>
+              <input
+                required
+                type="text"
+                value={form.name}
+                onChange={set('name')}
+                placeholder="Your name"
+                style={INPUT_STYLE}
+              />
+            </div>
+            <div style={LINE_STYLE}>
+              <span style={LABEL_STYLE}>$ email</span>
+              <input
+                required
+                type="email"
+                value={form.email}
+                onChange={set('email')}
+                placeholder="your@email.com"
+                style={INPUT_STYLE}
+              />
+            </div>
+            <div style={{ ...LINE_STYLE, alignItems: 'flex-start', borderBottom: 'none' }}>
+              <span style={{ ...LABEL_STYLE, paddingTop: '2px' }}>$ msg</span>
+              <textarea
+                required
+                rows={5}
+                value={form.message}
+                onChange={set('message')}
+                placeholder="Your message..."
+                style={{ ...INPUT_STYLE, resize: 'vertical', lineHeight: 1.6 }}
+              />
+            </div>
+
+            <div style={{ padding: '14px 18px', borderTop: '1px solid rgba(0,212,255,0.07)' }}>
+              <motion.button
+                type="submit"
+                disabled={sending}
+                whileHover={{ scale: 1.03, boxShadow: '0 0 24px rgba(0,212,255,0.3)' }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  width: '100%',
+                  padding: '11px',
+                  background: '#00D4FF',
+                  color: '#050A14',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  cursor: sending ? 'not-allowed' : 'pointer',
+                  opacity: sending ? 0.7 : 1,
+                  letterSpacing: '0.04em',
+                }}
+              >
+                {sending ? 'Sending...' : '→ Send Message'}
+              </motion.button>
+            </div>
+          </motion.form>
+        </div>
+      </div>
+    </section>
   );
 };
 

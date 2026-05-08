@@ -1,91 +1,152 @@
-// src/components/sections/Skills.js
-import React, { useEffect, useRef } from 'react';
-import { Box, Heading, Text, Container, SimpleGrid, Flex, VStack, Progress } from '@chakra-ui/react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-import { FaPython, FaDatabase, FaChartBar, FaRobot, FaReact } from 'react-icons/fa';
-import { SiTensorflow, SiPytorch, SiScikitlearn, SiTableau, SiGooglecloud } from 'react-icons/si';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import {
+  SiPython, SiTensorflow, SiPytorch, SiScikitlearn, SiOpenai,
+  SiDocker, SiKubernetes, SiGooglecloud, SiAmazonaws, SiFastapi,
+  SiPostgresql, SiApachespark, SiTableau, SiMlflow,
+  SiReact, SiGit, SiAmazonwebservices,
+} from 'react-icons/si';
+import { FaDatabase, FaRobot, FaBrain } from 'react-icons/fa';
 
-gsap.registerPlugin(ScrollTrigger);
+const CATEGORIES = [
+  {
+    label: 'AI / Machine Learning',
+    color: '#00D4FF',
+    skills: [
+      { icon: SiPython,      name: 'Python' },
+      { icon: SiTensorflow,  name: 'TensorFlow' },
+      { icon: SiPytorch,     name: 'PyTorch' },
+      { icon: SiScikitlearn, name: 'Scikit-learn' },
+      { icon: FaBrain,       name: 'Deep Learning' },
+      { icon: FaRobot,       name: 'RL Agents' },
+      { icon: SiOpenai,      name: 'LLMs / GPT-4' },
+      { icon: FaRobot,       name: 'NLP' },
+    ],
+  },
+  {
+    label: 'MLOps & Deployment',
+    color: '#7928CA',
+    skills: [
+      { icon: SiFastapi,     name: 'FastAPI' },
+      { icon: SiDocker,      name: 'Docker' },
+      { icon: SiKubernetes,  name: 'Kubernetes' },
+      { icon: SiGooglecloud, name: 'GCP' },
+      { icon: SiAmazonwebservices, name: 'AWS' },
+      { icon: SiMlflow,      name: 'MLflow' },
+    ],
+  },
+  {
+    label: 'Data & Analytics',
+    color: '#00D4FF',
+    skills: [
+      { icon: FaDatabase,    name: 'SQL' },
+      { icon: SiPostgresql,  name: 'PostgreSQL' },
+      { icon: SiApachespark, name: 'Spark' },
+      { icon: SiTableau,     name: 'Tableau' },
+      { icon: SiGit,         name: 'Git' },
+      { icon: SiReact,       name: 'React' },
+    ],
+  },
+];
 
-const SkillBar = ({ icon: Icon, label, percentage }) => {
-  const barRef = useRef(null);
-
-  useEffect(() => {
-    gsap.fromTo(
-      barRef.current,
-      { width: 0 },
-      {
-        width: `${percentage}%`,
-        duration: 1.5,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: barRef.current,
-          start: 'top bottom-=100',
-          end: 'bottom center',
-          scrub: 1,
-        },
-      }
-    );
-  }, [percentage]);
-
-  return (
-    <Box mb={6}>
-      <Flex align="center" mb={2}>
-        <Icon size="24px" color="brand.500" />
-        <Text ml={2} fontWeight="medium">{label}</Text>
-      </Flex>
-      <Progress 
-        value={percentage} 
-        size="sm" 
-        colorScheme="brand" 
-        borderRadius="full" 
-        ref={barRef}
-      />
-    </Box>
-  );
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+const badge = {
+  hidden: { opacity: 0, scale: 0.85, y: 12 },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+};
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
+  }),
 };
 
 const Skills = () => {
-  const sectionRef = useRef(null);
-
-  const skills = [
-    { icon: FaPython, label: 'Python', percentage: 95 },
-    { icon: FaDatabase, label: 'SQL', percentage: 90 },
-    { icon: SiTensorflow, label: 'TensorFlow', percentage: 85 },
-    { icon: SiPytorch, label: 'PyTorch', percentage: 80 },
-    { icon: SiScikitlearn, label: 'Scikit-Learn', percentage: 90 },
-    { icon: FaChartBar, label: 'Data Visualization', percentage: 85 },
-    { icon: FaRobot, label: 'Machine Learning', percentage: 90 },
-    { icon: SiTableau, label: 'Tableau', percentage: 75 },
-    { icon: SiGooglecloud, label: 'Google Cloud', percentage: 80 },
-    { icon: FaReact, label: 'React', percentage: 70 },
-  ];
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <Box id="skills" minHeight="100vh" display="flex" alignItems="center" py={20}>
-      <Container maxW="container.xl">
-        <VStack spacing={12} align="stretch">
-          <Heading 
-            as="h2" 
-            size="2xl" 
-            bgGradient="linear(to-r, brand.500, brand.300)" 
-            bgClip="text"
-            textAlign="center"
-          >
-            Skills & Expertise
-          </Heading>
-          <Text fontSize="xl" textAlign="center" mb={8}>
-            Here's a snapshot of my technical proficiencies and areas of expertise:
-          </Text>
-          <SimpleGrid columns={[1, null, 2]} spacing={8}>
-            {skills.map((skill, index) => (
-              <SkillBar key={index} icon={skill.icon} label={skill.label} percentage={skill.percentage} />
-            ))}
-          </SimpleGrid>
-        </VStack>
-      </Container>
-    </Box>
+    <section id="skills" className="section" ref={ref} style={{ padding: '120px 0' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', width: '100%' }}>
+        <motion.p
+          className="section-label"
+          variants={fadeUp} initial="hidden" animate={inView ? 'visible' : 'hidden'} custom={0}
+        >
+          What I work with
+        </motion.p>
+        <motion.h2
+          className="section-title"
+          variants={fadeUp} initial="hidden" animate={inView ? 'visible' : 'hidden'} custom={1}
+          style={{ marginBottom: '60px' }}
+        >
+          Skills &amp; Expertise
+        </motion.h2>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+          {CATEGORIES.map((cat, ci) => (
+            <motion.div
+              key={cat.label}
+              variants={fadeUp} initial="hidden" animate={inView ? 'visible' : 'hidden'} custom={ci + 2}
+            >
+              {/* Category heading */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '18px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '28px',
+                    height: '2px',
+                    background: cat.color,
+                    boxShadow: `0 0 8px ${cat.color}`,
+                  }}
+                />
+                <span
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: cat.color,
+                  }}
+                >
+                  {cat.label}
+                </span>
+              </div>
+
+              {/* Badge grid */}
+              <motion.div
+                variants={container}
+                initial="hidden"
+                animate={inView ? 'visible' : 'hidden'}
+                style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
+              >
+                {cat.skills.map(({ icon: Icon, name }) => (
+                  <motion.div
+                    key={name}
+                    variants={badge}
+                    className={`skill-badge${cat.color === '#7928CA' ? ' accent' : ''}`}
+                    whileHover={{ y: -2 }}
+                  >
+                    <Icon style={{ fontSize: '1rem', color: cat.color, flexShrink: 0 }} />
+                    <span>{name}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
 
