@@ -3,6 +3,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "moduleResolution": "bundler",
+    "ignoreDeprecations": "5.0"
   }
 }
