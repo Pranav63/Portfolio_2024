@@ -27,8 +27,10 @@
     "three": "^0.169.0"
   },
   "devDependencies": {
+    "@types/node": "25.6.2",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.13",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "typescript": "6.0.3"
   }
 }

@@ -19,7 +19,7 @@ const EDUCATION = [
     year: '2019 – 2020',
   },
   {
-    degree: 'BSc — Computer Science',
+    degree: 'B.Tech — Computer Science',
     school: 'UPES, Dehradun',
     year: '2014 – 2018',
   },

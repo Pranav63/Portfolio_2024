@@ -7,6 +7,9 @@ export const metadata = {
     title: 'Pranav Arora — Senior ML Engineer',
     description: 'Production AI · LLMs · Reinforcement Learning',
     url: 'https://pranavarora.vercel.app',
+     icons: {
+    icon: '/icon',
+  },
   },
 };
 
