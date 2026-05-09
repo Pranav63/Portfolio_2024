@@ -25,5 +25,5 @@ export function useCountUp(end, duration = 2000, decimals = 0) {
     requestAnimationFrame(animate);
   }, [inView, end, duration, decimals]);
 
-  return { count, ref };
+  return { count, ref }; 
 }
