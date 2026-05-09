@@ -5,7 +5,7 @@
       "@/*": ["src/*"]
     },
     "moduleResolution": "bundler",
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "target": "ES2017",
     "module": "ESNext",
     "jsx": "preserve",
