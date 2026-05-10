@@ -1,16 +1,33 @@
 export const PROJECTS = [
   {
+    id: 'multi-agent',
+    title: 'Autonomous Multi-Agent Research System',
+    subtitle: 'LangGraph orchestration with specialized research agents',
+    description:
+      'Production multi-agent system where a planner agent decomposes research queries, dispatches to specialist agents (search, summarise, critique, synthesise), and produces structured research reports. Built with LangGraph state machines, streaming responses, and full agent observability.',
+    tags: ['LangGraph', 'Multi-Agent', 'GPT-4o', 'FastAPI', 'Fly.io', 'Python'],
+    metrics: ['Live on Fly.io', 'LangGraph DAG', 'Streaming Output'],
+    highlights: [
+      'Planner → Researcher → Critic → Synthesiser agent pipeline',
+      'LangGraph state machine with conditional edge routing',
+      'Real-time streaming responses via FastAPI + SSE',
+    ],
+    github: 'https://github.com/Pranav63/autonomous-research-agent',
+    live: 'https://autonomous-research-agent.fly.dev/',
+    accent: '#C9A84C',
+  },
+  {
     id: 'rag-eval',
     title: 'Production RAG + Eval Framework',
-    subtitle: 'End-to-end retrieval system with LLM-as-judge evaluation',
+    subtitle: 'Hybrid retrieval with LLM-as-judge evaluation dashboard',
     description:
-      'Hybrid search pipeline (dense + sparse) with HNSW indexing, cross-encoder reranking, and a RAGAS-based evaluation dashboard. Tracks retrieval quality drift in production via Supabase + Streamlit.',
+      'End-to-end RAG pipeline with hybrid BM25 + dense retrieval, HNSW indexing, cross-encoder reranking, and a RAGAS-based evaluation dashboard tracking retrieval quality drift in production.',
     tags: ['LangChain', 'Qdrant', 'RAGAS', 'Supabase', 'Fly.io', 'Python'],
     metrics: ['Hybrid BM25 + Dense', 'LLM-as-Judge', 'Live on Fly.io'],
     highlights: [
       'Cross-encoder reranking over HNSW vector index',
       'RAGAS evaluation dashboard with drift detection',
-      'Supabase persistence + Streamlit frontend',
+      'Supabase persistence + Streamlit observability frontend',
     ],
     github: 'https://github.com/Pranav63/production-rag-eval',
     live: 'https://rag-eval-framework.fly.dev',
@@ -21,16 +38,16 @@ export const PROJECTS = [
     title: 'QLoRA Multilingual Fine-tuning Pipeline',
     subtitle: 'Arabic/multilingual LLM fine-tuning with MLflow + vLLM serving',
     description:
-      'QLoRA fine-tuning of Llama 3.2 3B on Arabic NLP tasks using HuggingFace PEFT. Full MLflow experiment tracking, base vs fine-tuned benchmark comparison, and vLLM serving layer.',
+      'QLoRA fine-tuning of Llama 3.2 3B on Arabic NLP tasks using HuggingFace PEFT. Full MLflow experiment tracking, base vs fine-tuned benchmark comparison, and vLLM serving layer for inference.',
     tags: ['QLoRA', 'PEFT', 'MLflow', 'vLLM', 'Llama 3.2', 'Arabic NLP'],
-    metrics: ['BLEU 0.82', 'MLflow Tracked', 'vLLM Served'],
+    metrics: ['BLEU +18% vs base', 'MLflow Tracked', 'vLLM Served'],
     highlights: [
       'QLoRA 4-bit quantisation on Llama 3.2 3B',
       'BLEU + ROUGE benchmarking vs base model',
       'MLflow experiment tracking + vLLM inference server',
     ],
     github: 'https://github.com/Pranav63/qlora-multilingual-finetuning',
-    live: null,
+    live: 'https://github.com/Pranav63/qlora-multilingual-finetuning',
     accent: '#8B6F47',
   },
 ];
